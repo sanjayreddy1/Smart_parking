@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<!-- saved from url=(0031)http://127.0.0.1:5000/dashboard -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Smart Car Parking Dashboard</title>
+    <link rel="stylesheet" href="./Smart Car Parking Dashboard_files/style.css">
+    <link rel="stylesheet" href="./Smart Car Parking Dashboard_files/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Welcome Sanjay (admin)</h2>
+
+    <div class="row text-center mb-3">
+        <div class="col">Total Slots<br><strong>1</strong></div>
+        <div class="col text-success">Available<br><strong>1</strong></div>
+        <div class="col text-danger">Occupied<br><strong>0</strong></div>
+        <div class="col">Today's Income<br><strong>₹0</strong></div>
+    </div>
+
+    
+        
+            
+                <div class="alert alert-success">Slot added successfully.</div>
+            
+        
+    
+
+    <hr>
+    <h4>Parking Slots</h4>
+    <div class="slot-grid">
+        
+            <div class="slot-box available">
+                <h6>a1</h6>
+                
+                <form method="POST" action="http://127.0.0.1:5000/update_slot/3">
+                    <select name="status" onchange="this.form.submit()">
+                        <option value="available" selected="">Available</option>
+                        <option value="occupied">Occupied</option>
+                    </select>
+                    <input type="text" name="vehicle_number" placeholder="Vehicle No">
+                </form>
+                
+                    <a href="http://127.0.0.1:5000/delete_slot/3" class="btn btn-sm btn-danger mt-1">Delete</a>
+                
+            </div>
+        
+    </div>
+
+    
+    <hr>
+    <h4>Add New Slot</h4>
+    <form method="POST" action="http://127.0.0.1:5000/add_slot" class="form-inline">
+        <input type="text" name="slot_id" placeholder="Slot ID" required="">
+        <select name="status" id="slot-status" onchange="toggleVehicleInput(this.value)">
+            <option value="available">Available</option>
+            <option value="occupied">Occupied</option>
+        </select>
+        <input type="text" name="vehicle_number" placeholder="Vehicle No (if occupied)" id="vehicle-number-field">
+        <button type="submit" class="btn btn-success btn-sm">Add</button>
+    </form>
+    <script>
+        function toggleVehicleInput(status) {
+            const input = document.getElementById('vehicle-number-field');
+            input.required = status === 'occupied';
+        }
+    </script>
+
+    <hr>
+    <h4>Create User</h4>
+    <form method="POST" action="http://127.0.0.1:5000/create_user">
+        <input type="text" name="username" placeholder="Username" required="">
+        <input type="text" name="password" placeholder="Password" required="">
+        <select name="role">
+            <option value="client">Client</option>
+            <option value="admin">Admin</option>
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">Create</button>
+    </form>
+    
+
+    <hr>
+    <h4>Billing Table</h4>
+    <table class="table table-bordered table-sm">
+        <thead>
+            <tr>
+                <th>Slot ID</th>
+                <th>Vehicle No</th>
+                <th>In-Time</th>
+                <th>Out-Time</th>
+                <th>Duration (hrs)</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Print</th>
+            </tr>
+        </thead>
+        <tbody>
+        
+            <tr>
+                <td>A1</td>
+                <td></td>
+                <td>2025-07-14 18:45:33</td>
+                <td>None</td>
+                <td>None</td>
+                <td>₹None</td>
+                <td>2025-07-14</td>
+                <td><a href="http://127.0.0.1:5000/print_bill/1" class="btn btn-sm btn-secondary">Print</a></td>
+            </tr>
+        
+        </tbody>
+    </table>
+
+    <hr>
+    <h4>Slot Status Table</h4>
+    <div class="row">
+        <div class="col">
+            <h5>Available Slots</h5>
+            <table class="table table-sm table-bordered">
+                <tbody><tr><th>Slot ID</th><th>Status</th></tr>
+                
+                
+                    
+                        <tr><td>a1</td><td>available</td></tr>
+                    
+                
+            </tbody></table>
+        </div>
+        <div class="col">
+            <h5>Occupied Slots</h5>
+            <table class="table table-sm table-bordered">
+                <tbody><tr><th>Slot ID</th><th>Status</th></tr>
+                
+                
+                    <tr><td colspan="2">No occupied slots</td></tr>
+                
+            </tbody></table>
+        </div>
+    </div>
+
+    
+    <hr>
+    <h4>Login Logs</h4>
+    <table class="table table-sm">
+        <tbody><tr><th>Username</th><th>Role</th><th>Login Time</th></tr>
+        
+            <tr><td>Sanjay</td><td>admin</td><td>2025-07-14 19:15:05</td></tr>
+        
+            <tr><td>Sanjay</td><td>admin</td><td>2025-07-14 19:07:25</td></tr>
+        
+            <tr><td>Sanjay</td><td>admin</td><td>2025-07-14 18:43:11</td></tr>
+        
+            <tr><td>Sanjay</td><td>admin</td><td>2025-07-14 18:23:45</td></tr>
+        
+            <tr><td>Sanjay</td><td>admin</td><td>2025-07-14 18:17:24</td></tr>
+        
+    </tbody></table>
+    
+
+    <a href="http://127.0.0.1:5000/logout" class="btn btn-outline-dark mt-3">Logout</a>
+</div>
+
+</body></html>

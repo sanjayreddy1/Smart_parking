@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Car Parking Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Welcome {{ username }} ({{ role }})</h2>
+
+    <div class="row text-center mb-3">
+        <div class="col">Total Slots<br><strong>{{ total_slots }}</strong></div>
+        <div class="col text-success">Available<br><strong>{{ available_slots }}</strong></div>
+        <div class="col text-danger">Occupied<br><strong>{{ occupied_slots }}</strong></div>
+        <div class="col">Today's Income<br><strong>₹{{ income_today }}</strong></div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <hr>
+    <h4>Parking Slots</h4>
+    <div class="slot-grid">
+        {% for slot in slots %}
+            <div class="slot-box {{ 'occupied' if slot.status == 'occupied' else 'available' }}">
+                <h6>{{ slot.slot_id }}</h6>
+                {% if slot.status == 'occupied' %}<div class="car-icon">🚗</div>{% endif %}
+                <form method="POST" action="/update_slot/{{ slot.id }}">
+                    <select name="status" onchange="this.form.submit()">
+                        <option value="available" {% if slot.status == 'available' %}selected{% endif %}>Available</option>
+                        <option value="occupied" {% if slot.status == 'occupied' %}selected{% endif %}>Occupied</option>
+                    </select>
+                    <input type="text" name="vehicle_number" placeholder="Vehicle No" {% if slot.status == 'occupied' %}required{% endif %}>
+                </form>
+                {% if role == 'admin' %}
+                    <a href="/delete_slot/{{ slot.id }}" class="btn btn-sm btn-danger mt-1">Delete</a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if role == 'admin' %}
+    <hr>
+    <h4>Add New Slot</h4>
+    <form method="POST" action="/add_slot" class="form-inline">
+        <input type="text" name="slot_id" placeholder="Slot ID" required>
+        <select name="status" id="slot-status" onchange="toggleVehicleInput(this.value)">
+            <option value="available">Available</option>
+            <option value="occupied">Occupied</option>
+        </select>
+        <input type="text" name="vehicle_number" placeholder="Vehicle No (if occupied)" id="vehicle-number-field">
+        <button type="submit" class="btn btn-success btn-sm">Add</button>
+    </form>
+    <script>
+        function toggleVehicleInput(status) {
+            const input = document.getElementById('vehicle-number-field');
+            input.required = status === 'occupied';
+        }
+    </script>
+
+    <hr>
+    <h4>Create User</h4>
+    <form method="POST" action="/create_user">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="text" name="password" placeholder="Password" required>
+        <select name="role">
+            <option value="client">Client</option>
+            <option value="admin">Admin</option>
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">Create</button>
+    </form>
+    {% endif %}
+
+    <hr>
+    <h4>Billing Table</h4>
+    <table class="table table-bordered table-sm">
+        <thead>
+            <tr>
+                <th>Slot ID</th>
+                <th>Vehicle No</th>
+                <th>In-Time</th>
+                <th>Out-Time</th>
+                <th>Duration (hrs)</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Print</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for row in billing %}
+            <tr>
+                <td>{{ row.slot_id }}</td>
+                <td>{{ row.vehicle_number }}</td>
+                <td>{{ row.in_time }}</td>
+                <td>{{ row.out_time }}</td>
+                <td>{{ row.duration_hours }}</td>
+                <td>₹{{ row.amount }}</td>
+                <td>{{ row.date }}</td>
+                <td><a href="/print_bill/{{ row.id }}" class="btn btn-sm btn-secondary">Print</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <hr>
+    <h4>Slot Status Table</h4>
+    <div class="row">
+        <div class="col">
+            <h5>Available Slots</h5>
+            <table class="table table-sm table-bordered">
+                <tr><th>Slot ID</th><th>Status</th></tr>
+                {% set avail = slots | selectattr('status', 'equalto', 'available') | list %}
+                {% if avail %}
+                    {% for s in avail %}
+                        <tr><td>{{ s.slot_id }}</td><td>{{ s.status }}</td></tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="2">No available slots</td></tr>
+                {% endif %}
+            </table>
+        </div>
+        <div class="col">
+            <h5>Occupied Slots</h5>
+            <table class="table table-sm table-bordered">
+                <tr><th>Slot ID</th><th>Status</th></tr>
+                {% set occupied = slots | selectattr('status', 'equalto', 'occupied') | list %}
+                {% if occupied %}
+                    {% for s in occupied %}
+                        <tr><td>{{ s.slot_id }}</td><td>{{ s.status }}</td></tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="2">No occupied slots</td></tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+
+    {% if role == 'admin' %}
+    <hr>
+    <h4>Login Logs</h4>
+    <table class="table table-sm">
+        <tr><th>Username</th><th>Role</th><th>Login Time</th></tr>
+        {% for log in login_logs %}
+            <tr><td>{{ log.username }}</td><td>{{ log.role }}</td><td>{{ log.login_time }}</td></tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    <a href="/logout" class="btn btn-outline-dark mt-3">Logout</a>
+</div>
+</body>
+</html>
